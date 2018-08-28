@@ -1,10 +1,12 @@
 <template>
   <div class="classes">
     <ul>
-      <li class="class" v-for="(specs, key) in classes" :key="key">
-        <span class="name">{{ key }}</span>
+      <li class="class" v-for="(specs, klass) in classes" :key="klass">
+        <span class="name">{{ klass }}</span>
         <ul>
-          <li v-for="spec in specs" :key="spec"><a href="#">{{ spec }}</a></li>
+          <li v-for="spec in specs" :key="spec">
+            <a v-bind:class="{ 'bg-primary text-light': isChosen(klass, spec) }" v-on:click="chooseSpec(klass, spec)" href="#">{{ spec }}</a>
+          </li>
         </ul>
       </li>
     </ul>
@@ -46,5 +48,18 @@ export default class Classes extends Vue {
     'Warlock':      ['Affliction', 'Demonology', 'Destruction'],
     'Warrior':      ['Arms', 'Fury', 'Protection'],
   };
+  get chosenKlass() {
+    return this.$store.getters.chosenKlass;
+  }
+  get chosenSpec() {
+    return this.$store.getters.chosenSpec;
+  }
+  private isChosen(klass: string, spec: string) {
+    return (this.chosenKlass === klass && this.chosenSpec === spec);
+  }
+  private chooseSpec(klass: string, spec: string) {
+    this.$store.commit('chooseKlass', klass);
+    this.$store.commit('chooseSpec', spec);
+  }
 }
 </script>

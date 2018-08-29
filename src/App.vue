@@ -8,9 +8,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import Classes from './components/Classes.vue';
-import Keyboard from './components/Keyboard.vue';
-import Spells from './components/Spells.vue';
+import Classes from '@/components/Classes.vue';
+import Keyboard from '@/components/Keyboard.vue';
+import Spells from '@/components/Spells.vue';
 
 @Component({
   components: {

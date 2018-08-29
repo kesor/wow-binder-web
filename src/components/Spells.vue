@@ -1,30 +1,26 @@
 <template>
     <div style="text-align:left; margin-top: 2em">
-      <pre>
-        <img v-bind:src="['https://wow.zamimg.com/images/wow/icons/large/', specialSpell.icon, '.jpg'].join('')"/>
-        {{ specialSpell.name_enus }}
-      </pre>
       <pre v-if='chosenKlass === "Death Knight"'>
         Death Knight Abilities
-        <a v-once href="#" data-wowhead="spell=190780">Frost Breath</a>
-        <a v-once href="#" data-wowhead="spell=205224">Consumption</a> - Cleave
-        <a v-once href="#" data-wowhead="spell=127344">Corpse Exploder</a>
-        <a v-once href="#" data-wowhead="spell=055078">Blood Plague</a>
-        <a v-once href="#" data-wowhead="spell=050977">Death Gate</a> - non combat Teleport
-        <a v-once href="#" data-wowhead="spell=049576">Death Grip</a> - Draw target near
-        <a v-once href="#" data-wowhead="spell=049998">Death Strike</a> - Hit &amp; Heal
-        <a v-once href="#" data-wowhead="spell=048265">Death's Advance</a> - Fast move
-        <a v-once href="#" data-wowhead="spell=055095">Frost Fever</a>
-        <a v-once href="#" data-wowhead="spell=053343">Rune of Razorice</a> - non combat
-        <a v-once href="#" data-wowhead="spell=053344">Rune of the Fallen Crusader</a> - non combat
-        <a v-once href="#" data-wowhead="spell=062158">Rune of the Stoneskin Gargoyle</a> - non combat
-        <a v-once href="#" data-wowhead="spell=053428">Runeforging</a> - non combat
-        <a v-once href="#" data-wowhead="spell=048707">Anti-Magic Shell</a>
-        <a v-once href="#" data-wowhead="spell=056222">Dark Command</a> - Taunt
-        <a v-once href="#" data-wowhead="spell=047528">Mind Freeze</a> - Interrupt
-        <a v-once href="#" data-wowhead="spell=003714">Path of Frost</a>
-        <a v-once href="#" data-wowhead="spell=111673">Control Undead</a> - Capture
-        <a v-once href="#" data-wowhead="spell=061999">Raise Ally</a> - BR (SHIFT-W)
+        <Spell id="190780"/>Frost Breath</Spell>
+        <Spell id="205224"/>Consumption</Spell> - Cleave
+        <Spell id="127344"/>Corpse Exploder</Spell>
+        <Spell id="055078"/>Blood Plague</Spell>
+        <Spell id="050977"/>Death Gate</Spell> - non combat Teleport
+        <Spell id="049576"/>Death Grip</Spell> - Draw target near
+        <Spell id="049998"/>Death Strike</Spell> - Hit &amp; Heal
+        <Spell id="048265"/>Death's Advance</Spell> - Fast move
+        <Spell id="055095"/>Frost Fever</Spell>
+        <Spell id="053343"/>Rune of Razorice</Spell> - non combat
+        <Spell id="053344"/>Rune of the Fallen Crusader</Spell> - non combat
+        <Spell id="062158"/>Rune of the Stoneskin Gargoyle</Spell> - non combat
+        <Spell id="053428"/>Runeforging</Spell> - non combat
+        <Spell id="048707"/>Anti-Magic Shell</Spell>
+        <Spell id="056222"/>Dark Command</Spell> - Taunt
+        <Spell id="047528"/>Mind Freeze</Spell> - Interrupt
+        <Spell id="003714"/>Path of Frost</Spell>
+        <Spell id="111673"/>Control Undead</Spell> - Capture
+        <Spell id="061999"/>Raise Ally</Spell> - BR (SHIFT-W)
         Death Knight Talents
         <a href="#" data-wowhead="spell=108194">Asphyxiate</a> - Stun
         <a href="#" data-wowhead="spell=207167" data-spec="frost">Blinding Sleet</a> - Frost spec
@@ -700,21 +696,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
-import axios from 'axios';
+import { Component, Vue } from 'vue-property-decorator';
+import Spell from './Spell.vue';
 
-@Component
+@Component({
+  components: {
+    Spell,
+  },
+})
 export default class Spells extends Vue {
-  @Prop(String) spellID!: string
-  private specialSpell = '';
-  public mounted() {
-    axios.get(`https://www.wowhead.com/tooltip/spell/${this.spellID}?json&power`)
-      .then((response) => this.specialSpell = response.data)
-  }
-  private updated() {
-    this.$nextTick(() => console.log('updated'))
-    this.$nextTick(() => window.$WowheadPower.init())
-  }
   get chosenKlass() {
     return this.$store.getters.chosenKlass;
   }

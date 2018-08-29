@@ -1,11 +1,11 @@
 <template>
-  <span class="spell">
-    <a :href="`#${id}`" :data-wowhead="`spell=${id}`" @click='$emit("drag")'>
-      <img :src="icon">
-      &nbsp;<small class="requirements" v-if="requirements">{{ requirements }}</small>
-      &nbsp;<nobr>{{ name }}</nobr>
-    </a>
-  </span>
+  <li class="spell">
+    <img :src="icon">
+    <a :href="`#${id}`" :data-wowhead="`spell=${id}`">{{ name }}</a>
+    <span v-if="requirements">{{ requirements }}</span>
+    <span v-if="replaces" v-html="replaces"></span>
+    <span v-if="$slots.default"><slot></slot></span>
+  </li>
 </template>
 
 <style>
@@ -23,48 +23,46 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import axios from 'axios';
 
 @Component
 export default class Spell extends Vue {
   @Prop(String) private id!: string;
-  private spell: {
-    name_enus: string,
-    icon: string,
-    tooltip_enus: string,
-    buff_enus: string,
-  } = { name_enus: '', icon: '', tooltip_enus: '', buff_enus: '' };
-  private requirements? : string = '';
-  get name() {
-    return this.spell ? this.spell.name_enus : '';
-  }
-  get tooltip() {
-    return this.spell ? this.spell.tooltip_enus : '';
-  }
-  get buff() {
-    return this.spell ? this.spell.buff_enus : '';
-  }
-  get icon() {
-    // http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html
-    return this.spell.icon != '' ? `https://wow.zamimg.com/images/wow/icons/large/${this.spell.icon}.jpg` : 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=';
-  }
+  private requirements: string = '';
+  private replaces: string = '';
+  private name: string = '';
+  private icon: string = '';
+  private tooltip: string = '';
+  private json: string = '';
   private created() {
-    if (this.spell.name_enus != '')
+    if (this.name !== '') {
       return;
-    axios
-      .get(`https://www.wowhead.com/tooltip/spell/${this.id}?json&power`)
+    }
+    fetch(`https://www.wowhead.com/tooltip/spell/${this.id}?json&power`)
       .then((response) => {
-        this.spell = response.data;
-        var requirements = document.createRange()
-                      .createContextualFragment(response.data.tooltip_enus)
-                      .querySelector('.wowhead-tooltip-requirements');
-        if (requirements && requirements.textContent) {
-          this.requirements = requirements.textContent.replace(/Requires [^\(]*/, '');
-          this.$parent.$emit('spell-requirements', { [this.id]: requirements });
+        if (response.status !== 200) {
+          console.error(`Failed to fetch spell data. Code: ${response.status}. Reason: ${response.statusText}`);
+          return;
         }
-      })
-      .catch((error) => console.log(error))
-      ;
+        response.json().then((data) => {
+          this.json = data;
+          // this.$parent.$emit('spell', { [this.id]: data });
+          this.name = data.name_enus;
+          this.tooltip = data.tooltip_enus;
+          this.icon = `https://wow.zamimg.com/images/wow/icons/large/${data.icon}.jpg`;
+          const replaces = document.createRange()
+                        .createContextualFragment(this.tooltip)
+                        .querySelectorAll('span.q');
+          this.replaces = [...replaces]
+              .map((q) => (q && q.textContent && /^Replaces /.test(q.textContent)) ? q.innerHTML : undefined)
+              .join('');
+          const requirements = document.createRange()
+                        .createContextualFragment(this.tooltip)
+                        .querySelectorAll('.wowhead-tooltip-requirements');
+          const textRequirements = [...requirements].map(
+            (x) => x.textContent ? x.textContent.replace(/^Requires (.*)$/, '[$1]') : '');
+          this.requirements = textRequirements.join(' ');
+        });
+      });
   }
 }
 </script>

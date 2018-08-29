@@ -6,21 +6,14 @@
 
 <template>
     <div class="spells" style="text-align:left; margin-top: 2em">
-      <div v-for="(klassSpells, klass) in spells" :key="klass" v-if='chosenKlass === klass'>
-        {{ klass }} Abilities
-        <ul>
-          <li v-for='spell in klassSpells.abilities' :key="spell"><Spell v-once :id="spell"/><span v-if="comments[spell]"> - {{ comments[spell] }}</span></li>
-        </ul>
-        {{ klass }} Talents
-        <ul>
-          <li v-for='spell in klassSpells.talents' :key="spell"><Spell v-once :id="spell"/><span v-if="comments[spell]"> - {{ comments[spell] }}</span></li>
-        </ul>
-        {{ klass }} PvP Talents
-        <ul>
-          <li v-for='spell in klassSpells.pvptalents' :key="spell"><Spell v-once :id="spell"/><span v-if="comments[spell]"> - {{ comments[spell] }}</span></li>
-        </ul>
-      </div>
-
+      <ul v-for="(klassSpells, klass) in spells" :key="klass" v-if='chosenKlass === klass'>
+        <li>{{ klass }} Abilities</li>
+        <Spell v-once v-for='spell in klassSpells.abilities' :key="spell" :id="spell"><span v-if="comments[spell]">{{ comments[spell] }}</span></Spell>
+        <li>{{ klass }} Talents</li>
+        <Spell v-once v-for='spell in klassSpells.talents' :key="spell" :id="spell"><span v-if="comments[spell]">{{ comments[spell] }}</span></Spell>
+        <li>{{ klass }} PvP Talents</li>
+        <Spell v-once v-for='spell in klassSpells.pvptalents' :key="spell" :id="spell"><span v-if="comments[spell]">{{ comments[spell] }}</span></Spell>
+      </ul>
     </div>
 </template>
 
@@ -37,8 +30,8 @@ export default class Spells extends Vue {
   private spells = {
     'Global': {
       pvptalents: [
-        '208683'
-      ]
+        '208683',
+      ],
     },
     'Death Knight': {
       abilities: [
@@ -211,36 +204,34 @@ export default class Spells extends Vue {
 
   private comments = {
         // Global
-        "208683": "any class",
+        '208683': 'any class',
         // Death Knight Abilities
-        "205224": "Cleave + Heal",
-        "050977": "non combat Teleport",
-        "049576": "Draw target near",
-        "049998": "Hit & Heal",
-        "048265": "Fast move",
-        "053343": "non combat",
-        "053344": "non combat",
-        "062158": "non combat",
-        "053428": "non combat",
-        "056222": "Taunt",
-        "047528": "Interrupt",
-        "111673": "Capture",
-        "061999": "BR (SHIFT-W)",
+        '205224': 'Cleave + Heal',
+        '050977': 'non combat Teleport',
+        '049576': 'Draw target near',
+        '049998': 'Hit & Heal',
+        '048265': 'Fast move',
+        '053343': 'non combat',
+        '053344': 'non combat',
+        '062158': 'non combat',
+        '053428': 'non combat',
+        '056222': 'Taunt',
+        '047528': 'Interrupt',
+        '111673': 'Capture',
+        '061999': 'BR (SHIFT-W)',
         // Death Knight Talents
-        "108194": "Stun",
-        "206931": "T56",
-        "194844": "T100",
-        "274156": "T57",
-        "152280": "replaces Death and Decay",
-        "206940": "T90",
-        "210764": "T56",
-        "194679": "T60",
-        "219809": "T58",
-        "212552": "fast move & remove roots - (4) - T75",
+        '108194': 'Stun',
+        '206931': 'T56',
+        '194844': 'T100',
+        '274156': 'T57',
+        '206940': 'T90',
+        '210764': 'T56',
+        '194679': 'T60',
+        '219809': 'T58',
+        '212552': 'fast move & remove roots - (4) - T75',
         // Death Knight PvP Talents
-        "077606": "Spell steal",
-        "207018": "replaces Dark Command",
-        "047476": "silence 5 sec",
+        '077606': 'Spell steal',
+        '047476': 'silence 5 sec',
         // Demon Hunter Abilities
         '188499': 'AoE',
         '198589': 'Dodge + Damage reduce',
@@ -280,11 +271,7 @@ export default class Spells extends Vue {
         '165962': '(T)',
         '002637': 'Sleep',
         // Druid Talents
-        '202028': 'replaces Swipe',
-        '102359': "replaces Nature's Control - Mass root",
-        '005211': "replaces Nature's Control",
-        '252216': 'Replaces Dash',
-        '132469': "replaces Nature's Control",
+        '102359': `Mass root`,
         // Druid PvP Talents
         // Hunter Abilities
         '138430': 'non combat',
@@ -352,7 +339,7 @@ export default class Spells extends Vue {
         '281403': 'non combat',
         '281404': 'non combat',
         // Mage Talents
-        '212653': 'replaces Blink - Fast move (T)',
+        '212653': 'Fast move (T)',
         // Mage PvP Talents
         '198111': 'Shield',
         // Monk Abilities
@@ -362,13 +349,9 @@ export default class Spells extends Vue {
         '115178': 'Ressurect',
         '115078': 'Crowd control',
         // Monk Talents
-        '115008': 'replaces Roll - Fast move',
+        '115008': 'Fast move (T)',
         '115098': 'Chain healing',
         '122278': 'Damage reduction',
-        '116844': 'replaces Disabling Technique',
-        '152173': 'replaces Storm, Earth, and Fire',
-        '198898': 'replaces Disabling Technique',
-        '115315': 'replaces Disabling Technique',
         // Monk PvP Talents
         // Paladin Abilities
         '200654': 'Heal HoT',
@@ -394,8 +377,6 @@ export default class Spells extends Vue {
         // Priest Abilities
         '02006': 'Ressurect',
         // Priest Talents
-        '271466': 'replaces Power Word: Barrier',
-        '205369': 'replaces Psychic Scream',
         // Priest PvP Talents
         // Rogue Abilities
         '056814': 'Track',
@@ -445,7 +426,6 @@ export default class Spells extends Vue {
         '108416': 'Shield',
         '006789': 'Fear',
         // Warlock PvP Talents
-        '200546': 'Replaces Havoc',
         '199890': 'Debuff',
         '199892': 'Debuff',
         // Warrior Abilities
@@ -457,8 +437,6 @@ export default class Spells extends Vue {
         '006673': 'Buff',
         // Warrior Talents
         // Warrior PvP Talents
-        '213915': 'replaces Spell Reflection',
-        '205800': 'replaces Taunt',
   };
 
   get chosenKlass() {
@@ -468,9 +446,9 @@ export default class Spells extends Vue {
     return this.$store.getters.chosenSpec;
   }
 
-  private created() {
-    this.$on('spell-details', (details: any) => console.log(details));
-  }
+  // private created() {
+  //   this.$on('spell', console.log);
+  // }
 
 }
 </script>

@@ -1,9 +1,15 @@
 <template>
   <li class="spell">
     <img :src="icon">
+    &#32;
     <a :href="`#${id}`" :data-wowhead="`spell=${id}`">{{ name }}</a>
-    <span v-if="requirements">{{ requirements }}</span>
+    &#32;
+    <template v-for="req in requirements" v-if="requirements">
+      <small :key="req" class="badge badge-info">{{ req }}</small>
+      &#32;
+    </template>
     <span v-if="replaces" v-html="replaces"></span>
+    &#32;
     <span v-if="$slots.default"><slot></slot></span>
   </li>
 </template>
@@ -27,12 +33,47 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component
 export default class Spell extends Vue {
   @Prop(String) private id!: string;
-  private requirements: string = '';
+  @Prop(String) private klass!: string;
+  private requirements: string[] = [''];
   private replaces: string = '';
   private name: string = '';
   private icon: string = '';
   private tooltip: string = '';
   private json: string = '';
+
+  private extractReplaces() {
+      const replaces = document.createRange()
+                    .createContextualFragment(this.tooltip)
+                    .querySelectorAll('span.q');
+      this.replaces = [...replaces]
+          .map((q) => (q && q.textContent && /^Replaces /.test(q.textContent)) ? q.innerHTML : undefined)
+          .join('');
+  }
+
+  private extractRequirements() {
+    const requirements = document.createRange()
+                  .createContextualFragment(this.tooltip)
+                  .querySelectorAll('.wowhead-tooltip-requirements');
+    this.requirements = [...requirements].map(
+      (req) => {
+        let text = '';
+        if (req.textContent) {
+          text = req.textContent
+            .replace(/^Requires (.*)$/, '$1')
+            .replace(this.klass, '')   // class name
+            .replace(/\(/, '')         // opening brace before spec names
+            .replace(/\)/, '')         // closing brace after spec names
+            .replace(/.*Weapon.*/, '') // weapon requirements
+            .replace(/.*Two-Handed.*/, '') // weapon requirements
+            .replace(/.*Sword.*/, '')      // weapon requirements
+            .replace(/.*Staves.*/, '')      // weapon requirements
+            ;
+        }
+        return text;
+      },
+    );
+  }
+
   private created() {
     if (this.name !== '') {
       return;
@@ -49,18 +90,8 @@ export default class Spell extends Vue {
           this.name = data.name_enus;
           this.tooltip = data.tooltip_enus;
           this.icon = `https://wow.zamimg.com/images/wow/icons/large/${data.icon}.jpg`;
-          const replaces = document.createRange()
-                        .createContextualFragment(this.tooltip)
-                        .querySelectorAll('span.q');
-          this.replaces = [...replaces]
-              .map((q) => (q && q.textContent && /^Replaces /.test(q.textContent)) ? q.innerHTML : undefined)
-              .join('');
-          const requirements = document.createRange()
-                        .createContextualFragment(this.tooltip)
-                        .querySelectorAll('.wowhead-tooltip-requirements');
-          const textRequirements = [...requirements].map(
-            (x) => x.textContent ? x.textContent.replace(/^Requires (.*)$/, '[$1]') : '');
-          this.requirements = textRequirements.join(' ');
+          this.extractReplaces();
+          this.extractRequirements();
         });
       });
   }

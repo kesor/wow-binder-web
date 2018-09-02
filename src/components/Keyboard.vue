@@ -70,8 +70,8 @@ export default class Keyboard extends Vue {
   private drop(e: DragEvent) {
     e.dataTransfer.dropEffect = 'copy';
     const target = e.target as HTMLElement;
-    const data = e.dataTransfer.getData('text/plain');
-    if (target) {
+    if (target.nodeName === 'I') {
+      const data = e.dataTransfer.getData('text/plain');
       target.style.backgroundImage = `url('${data}')`;
     }
   }

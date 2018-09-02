@@ -48,9 +48,9 @@ export default class Spell extends Vue {
     if (!target || !target.querySelector) { return; }
     const image = target.querySelector('img') || e.target;
     e.dataTransfer.setDragImage(image as Element, this.imageHeight / 2, this.imageWidth / 2);
-    e.dataTransfer.setData("text/uri-list", this.icon);
-    e.dataTransfer.setData("text/plain", this.icon);
-    e.dataTransfer.effectAllowed = "link";
+    e.dataTransfer.setData('text/uri-list', this.icon);
+    e.dataTransfer.setData('text/plain', this.icon);
+    e.dataTransfer.effectAllowed = 'copy';
     $WowheadPower.hideTooltip();
   }
 

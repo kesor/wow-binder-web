@@ -1,8 +1,8 @@
 <template>
-  <li class="spell">
+  <li class="spell" :id="`spell-${id}`" draggable="true" @dragstart.stop="dragstart">
     <img :src="icon">
     &#32;
-    <a :href="`#${id}`" :data-wowhead="`spell=${id}`">{{ name }}</a>
+    <a :href="`#${id}`" :data-wowhead="`spell=${id}`" draggable="false">{{ name }}</a>
     &#32;
     <template v-for="req in requirements" v-if="requirements">
       <small :key="req" class="badge badge-info">{{ req }}</small>
@@ -19,13 +19,13 @@
     text-decoration: none;
   }
   .spell img {
-    height: 56px;
-    width: 56px;
+    pointer-events: none;
+    height: var(--imageHeight)px;
+    width: var(--imageWidth)px;
     min-height: 56px;
     min-width: 56px;
   }
 </style>
-
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
@@ -34,12 +34,23 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 export default class Spell extends Vue {
   @Prop(String) private id!: string;
   @Prop(String) private klass!: string;
+  private imageHeight = 56;
+  private imageWidth = 56;
   private requirements: string[] = [''];
   private replaces: string = '';
   private name: string = '';
   private icon: string = '';
   private tooltip: string = '';
   private json: string = '';
+
+  private dragstart(e: DragEvent) {
+    const target = e.target as HTMLElement;
+    if (!target || !target.querySelector) { return; }
+    const image = target.querySelector('img') || e.target;
+    e.dataTransfer.setDragImage(image as Element, this.imageHeight / 2, this.imageWidth / 2);
+    $WowheadPower.hideTooltip();
+    console.log(e.target);
+  }
 
   private extractReplaces() {
       const replaces = document.createRange()
@@ -48,13 +59,14 @@ export default class Spell extends Vue {
       this.replaces = [...replaces]
           .map((q) => (q && q.textContent && /^Replaces /.test(q.textContent)) ? q.innerHTML : undefined)
           .join('');
+      return this.replaces;
   }
 
   private extractRequirements() {
     const requirements = document.createRange()
                   .createContextualFragment(this.tooltip)
                   .querySelectorAll('.wowhead-tooltip-requirements');
-    this.requirements = [...requirements].map(
+    this.requirements = Array.from(new Set([...requirements].map(
       (req) => {
         let text = '';
         if (req.textContent) {
@@ -69,9 +81,10 @@ export default class Spell extends Vue {
             .replace(/.*Staves.*/, '')      // weapon requirements
             ;
         }
-        return text;
+        return text.trim().split(/ ?(level \d*) ?|, /);
       },
-    );
+    ).reduce((a, b) => [...a, ...b], []).filter(Boolean)));
+    return this.requirements;
   }
 
   private created() {
@@ -86,12 +99,12 @@ export default class Spell extends Vue {
         }
         response.json().then((data) => {
           this.json = data;
-          // this.$parent.$emit('spell', { [this.id]: data });
           this.name = data.name_enus;
           this.tooltip = data.tooltip_enus;
           this.icon = `https://wow.zamimg.com/images/wow/icons/large/${data.icon}.jpg`;
-          this.extractReplaces();
-          this.extractRequirements();
+          const replaces = this.extractReplaces();
+          const requirements = this.extractRequirements();
+          this.$parent.$emit('spell', { [this.id]: { data, requirements, replaces } });
         });
       });
   }

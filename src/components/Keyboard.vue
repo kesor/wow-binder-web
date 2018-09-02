@@ -1,6 +1,6 @@
 <template>
-  <div class="keyboard">
-    <div><i>&nbsp;</i><i style="background-image: url('https://wow.zamimg.com/images/wow/icons/large/spell_frost_frostnova.jpg');">1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i><i>0</i><i>-</i><i>=</i><i>\</i></div>
+  <div class="keyboard" droppable="true" @drop.prevent="drop" @dragover.prevent="dragover" @dragenter.prevent="dragover">
+    <div><i>&nbsp;</i><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i><i>0</i><i>-</i><i>=</i><i>\</i></div>
     <div><i style="min-width:5em">TAB</i><i>Q</i><i>W</i><i>E</i><i>R</i><i>T</i><i>Y</i><i>U</i><i>I</i><i>O</i><i>P</i><i>]</i><i>[</i></div>
     <div><i style="min-width:6em">CTRL</i><i>A</i><i>S</i><i>D</i><i>F</i><i>G</i><i>H</i><i>J</i><i>K</i><i>L</i><i>;</i><i>'</i></div>
     <div><i style="min-width:7em">SHIFT</i><i>Z</i><i>X</i><i>C</i><i>V</i><i>B</i><i>N</i><i>M</i><i>,</i><i>.</i><i>/</i></div>
@@ -42,6 +42,9 @@
 
     font-weight: 900;
   }
+  .keyboard i:-moz-drag-over {
+    border: 1px solid black;
+  }
 </style>
 
 <script lang="ts">
@@ -49,5 +52,16 @@ import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Keyboard extends Vue {
+  private dragover (e: DragEvent) {
+    e.dataTransfer.dropEffect = "link";
+  }
+  private drop (e: DragEvent) {
+    e.dataTransfer.dropEffect = "link";
+    const target = e.target as HTMLElement;
+    const data = e.dataTransfer.getData("text/plain");
+    if (target) {
+      target.style.backgroundImage = `url('${data}')`
+    }
+  }
 }
 </script>

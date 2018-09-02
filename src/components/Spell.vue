@@ -48,8 +48,10 @@ export default class Spell extends Vue {
     if (!target || !target.querySelector) { return; }
     const image = target.querySelector('img') || e.target;
     e.dataTransfer.setDragImage(image as Element, this.imageHeight / 2, this.imageWidth / 2);
+    e.dataTransfer.setData("text/uri-list", this.icon);
+    e.dataTransfer.setData("text/plain", this.icon);
+    e.dataTransfer.effectAllowed = "link";
     $WowheadPower.hideTooltip();
-    console.log(e.target);
   }
 
   private extractReplaces() {
@@ -66,7 +68,7 @@ export default class Spell extends Vue {
     const requirements = document.createRange()
                   .createContextualFragment(this.tooltip)
                   .querySelectorAll('.wowhead-tooltip-requirements');
-    this.requirements = Array.from(new Set([...requirements].map(
+    this.requirements = [...new Set([...requirements].map(
       (req) => {
         let text = '';
         if (req.textContent) {
@@ -83,7 +85,7 @@ export default class Spell extends Vue {
         }
         return text.trim().split(/ ?(level \d*) ?|, /);
       },
-    ).reduce((a, b) => [...a, ...b], []).filter(Boolean)));
+    ).reduce((a, b) => [...a, ...b], []).filter(Boolean))];
     return this.requirements;
   }
 

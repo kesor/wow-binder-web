@@ -24,3 +24,10 @@ npm run lint
 ```
 npm run test:unit
 ```
+
+### Recommended list of extensions for VS Code used in the development of this project
+
+* Vetur
+* Prettier
+* TSLint Vue
+* Trailing Spaces
